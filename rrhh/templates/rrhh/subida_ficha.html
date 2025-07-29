@@ -1,0 +1,243 @@
+{% load form_filters %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Subir ficha y completar formulario</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white p-6 rounded shadow w-full max-w-4xl">
+    <h1 class="text-2xl font-bold mb-4 text-center text-purple-800">
+      Hola {{ candidato.nombre }}, completa tu ficha de contratación
+    </h1>
+
+    {% if mensaje_exito %}
+      <div class="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded mb-4 text-center">
+        {{ mensaje_exito }}
+      </div>
+    {% else %}
+      <form method="post" enctype="multipart/form-data" class="space-y-6">
+        {% csrf_token %}
+
+        <!-- Agrupamos NIF / NIE / Pasaporte / Carta Identidad -->
+        <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+          <p class="text-sm text-purple-800 font-semibold mb-2">
+            Introduce <strong>solo uno</strong> de los siguientes documentos identificativos:
+          </p>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {% for field in form %}
+              {% if field.name in 'nif nie pasaporte carta_identidad' %}
+                <div>
+                  <label class="block text-sm font-semibold text-gray-700 mb-1">{{ field.label }}</label>
+                  {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" }}
+                  {% for error in field.errors %}
+                    <p class="text-red-500 text-sm">{{ error }}</p>
+                  {% endfor %}
+                </div>
+              {% endif %}
+            {% endfor %}
+          </div>
+        </div>
+
+        <!-- Resto de campos normales -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% for field in form %}
+            {% if field.name not in 'nif nie pasaporte carta_identidad inscrito_sepe mayor_30_sepe discapacitado excluido_social victima_violencia_domestica mujer_reincorporada capacidad_intelectual_limite contrato_temporal_6m_fibh contrato_indefinido_12m_fibh contrato_indefinido_3m_otra_empresa' %}
+              <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+                <label class="block text-sm font-semibold text-purple-800 mb-1">{{ field.label }}</label>
+                {{ field|add_class:"w-full px-3 py-2 border border-gray-300 rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-transparent" }}
+                {% for error in field.errors %}
+                  <p class="text-red-500 text-sm">{{ error }}</p>
+                {% endfor %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+
+
+        <!-- Checkboxes + Documentos asociados -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {% comment %} Checkbox + input por cada caso específico {% endcomment %}
+
+          <!-- Inscrito en el SEPE -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+              <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.inscrito_sepe.label }}
+              </label>
+              <div>
+                {{ form.inscrito_sepe }}
+              </div>
+            <div id="doc_inscrito_sepe" class="mt-2 hidden">
+              {{ form.documento_inscrito_sepe.label_tag }}
+              {{ form.documento_inscrito_sepe }}
+            </div>
+          </div>
+
+          <!-- Mayor 30 inscrito SEPE -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+              <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.mayor_30_sepe.label_tag }}
+              </label>
+              <div>
+                {{ form.mayor_30_sepe }}
+              </div>
+            <div id="doc_mayor_30_sepe" class="mt-2 hidden">
+              {{ form.documento_mayor_30_sepe.label_tag }}
+              {{ form.documento_mayor_30_sepe }}
+            </div>
+          </div>
+
+          <!-- Discapacitado -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+              <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.discapacitado.label_tag }}
+              </label>
+              <div>
+                {{ form.discapacitado }}
+              </div>
+            <div id="doc_discapacitado" class="mt-2 hidden">
+              {{ form.documento_discapacitado.label_tag }}
+              {{ form.documento_discapacitado }}
+            </div>
+          </div>
+          <!-- Exclusión social -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.excluido_social.label_tag }}
+            </label>
+            <div>
+                {{ form.excluido_social }}
+            </div>
+            <div id="doc_excluido_social" class="mt-2 hidden">
+              {{ form.documento_excluido_social.label_tag }}
+              {{ form.documento_excluido_social }}
+            </div>
+          </div>
+
+          <!-- Víctima violencia doméstica -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.victima_violencia_domestica.label_tag }}
+            </label>
+            <div>
+                {{ form.victima_violencia_domestica }}
+            </div>
+            <div id="doc_victima_violencia_domestica" class="mt-2 hidden">
+              {{ form.documento_victima_violencia_domestica.label_tag }}
+              {{ form.documento_victima_violencia_domestica }}
+            </div>
+          </div>
+          <!-- Mujer reincorporada -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.mujer_reincorporada.label_tag }}
+            </label>
+            <div>
+                {{ form.mujer_reincorporada }}
+            </div>
+            <div id="doc_mujer_reincorporada" class="mt-2 hidden">
+              {{ form.documento_mujer_reincorporada.label_tag }}
+              {{ form.documento_mujer_reincorporada }}
+            </div>
+          </div>
+          <!-- Capacidad intelectual límite -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.capacidad_intelectual_limite.label_tag }}
+            </label>
+            <div>
+                {{ form.capacidad_intelectual_limite }}
+            </div>
+            <div id="doc_capacidad_intelectual_limite" class="mt-2 hidden">
+              {{ form.documento_capacidad_intelectual_limite.label_tag }}
+              {{ form.documento_capacidad_intelectual_limite }}
+            </div>
+          </div>
+
+          <!-- Contrato temporal 6m FIB -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.contrato_temporal_6m_fibh.label_tag }}
+            </label>
+            <div>
+                {{ form.contrato_temporal_6m_fibh }}
+            </div>
+            <div id="doc_contrato_temporal_6m_fibh" class="mt-2 hidden">
+              {{ form.documento_contrato_temporal_6m_fibh.label_tag }}
+              {{ form.documento_contrato_temporal_6m_fibh }}
+            </div>
+          </div>
+
+          <!-- Contrato indefinido 12m FIB -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.contrato_indefinido_12m_fibh.label_tag }}
+            </label>
+            <div>
+            </div>
+                {{ form.contrato_indefinido_12m_fibh }}
+            <div id="doc_contrato_indefinido_12m_fibh" class="mt-2 hidden">
+              {{ form.documento_contrato_indefinido_12m_fibh.label_tag }}
+              {{ form.documento_contrato_indefinido_12m_fibh }}
+            </div>
+          </div>
+
+          <!-- Contrato indefinido 3m otra empresa -->
+          <div class="bg-white shadow-md rounded p-4 border border-gray-200">
+            <label class="block text-sm font-semibold text-purple-800 mb-2">
+                {{ form.contrato_indefinido_3m_otra_empresa.label_tag }}
+            </label>
+            <div>
+                {{ form.contrato_indefinido_3m_otra_empresa }}
+            </div>
+            <div id="doc_contrato_indefinido_3m_otra_empresa" class="mt-2 hidden">
+              {{ form.documento_contrato_indefinido_3m_otra_empresa.label_tag }}
+              {{ form.documento_contrato_indefinido_3m_otra_empresa }}
+            </div>
+          </div>
+
+        </div>
+
+
+
+        <!-- Botón -->
+        <div class="text-center">
+          <button type="submit" class="bg-purple-800 hover:bg-purple-900 text-white px-6 py-3 rounded-lg font-semibold shadow-md">
+            Enviar datos y documentos
+          </button>
+        </div>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const pares = [
+    ["id_inscrito_sepe", "doc_inscrito_sepe"],
+    ["id_mayor_30_sepe", "doc_mayor_30_sepe"],
+    ["id_discapacitado", "doc_discapacitado"],
+    ["id_excluido_social", "doc_excluido_social"],
+    ["id_victima_violencia_domestica", "doc_victima_violencia_domestica"],
+    ["id_mujer_reincorporada", "doc_mujer_reincorporada"],
+    ["id_capacidad_intelectual_limite", "doc_capacidad_intelectual_limite"],
+    ["id_contrato_temporal_6m_fibh", "doc_contrato_temporal_6m_fibh"],
+    ["id_contrato_indefinido_12m_fibh", "doc_contrato_indefinido_12m_fibh"],
+    ["id_contrato_indefinido_3m_otra_empresa", "doc_contrato_indefinido_3m_otra_empresa"]
+  ];
+
+  pares.forEach(([checkboxId, inputDivId]) => {
+    const checkbox = document.getElementById(checkboxId);
+    const inputDiv = document.getElementById(inputDivId);
+    if (checkbox && inputDiv) {
+      function toggle() {
+        inputDiv.classList.toggle("hidden", !checkbox.checked);
+      }
+      checkbox.addEventListener("change", toggle);
+      toggle(); // Ejecuta una vez al cargar
+    }
+  });
+});
+</script>

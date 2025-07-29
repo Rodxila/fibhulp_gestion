@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Formulario Empresa - RRHH{% endblock %}
+{% load widget_tweaks %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto mt-10 bg-white p-6 shadow rounded">
+  <h1 class="text-2xl font-bold text-purple-700 mb-6 text-center">Formulario de contratación (RRHH)</h1>
+
+  <div class="text-center mb-6">
+    <a href="{% url 'rrhh:rrhh_contratacion' %}" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded">
+      ← Volver a solicitudes
+    </a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="space-y-6">
+    {% csrf_token %}
+
+    <!-- Sección 1: Datos del empleado -->
+    <div class="bg-blue-50 border border-blue-200 p-4 rounded">
+      <h2 class="text-lg font-semibold text-blue-800 mb-3">🧍 Datos personales del empleado</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for campo in form %}
+          {% if campo.name in campos_trabajador %}
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ campo.label }}</label>
+              {{ campo|add_class:"w-full border border-gray-300 rounded p-2" }}
+              {% for error in campo.errors %}
+                <p class="text-red-500 text-xs">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sección 2: Documentación -->
+    <div class="bg-purple-50 border border-purple-200 p-4 rounded">
+      <h2 class="text-lg font-semibold text-purple-800 mb-3">📎 Documentación aportada</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for campo in form %}
+            {% if campo.name in campos_documentos %}
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ campo.label }}</label>
+              {{ campo }}
+              {% for error in campo.errors %}
+                <p class="text-red-500 text-xs">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <!-- Sección 3: Información RRHH -->
+    <div class="bg-green-50 border border-green-200 p-4 rounded">
+      <h2 class="text-lg font-semibold text-green-800 mb-3">🏢 Datos de contratación (RRHH)</h2>
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {% for campo in form %}
+            {% if campo.name in campos_rrhh %}
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-1">{{ campo.label }}</label>
+              {{ campo|add_class:"w-full border border-gray-300 rounded p-2" }}
+              {% for error in campo.errors %}
+                <p class="text-red-500 text-xs">{{ error }}</p>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="text-center mt-6">
+      <button type="submit" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-6 rounded">
+        Guardar cambios
+      </button>
+    </div>
+  </form>
+</div>
+{% endblock %}

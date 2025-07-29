@@ -1,0 +1,111 @@
+<!-- templates/rrhh/candidatos_list.html -->
+{% extends "base.html" %}
+{% block content %}
+<div class="flex flex-col items-center h-screen space-y-4">
+    <h2 class="block mx-auto text-center text-2xl font-bold">Listado de Candidatos</h2>
+    <a href="{% url 'rrhh:exportar_candidatos_excel' %}"  class="inline-block bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-xl shadow-md transition">Exportar a Excel</a>
+    <a href="{% url 'rrhh:rrhh_inicio' %}" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded">
+        ← Volver al menú
+    </a>
+    <table>
+        <thead>
+            <tr>
+                <th class='px-4 py-2 text-left font-semibold'>Puesto</th>
+                <th class='px-4 py-2 text-left font-semibold'>Nombre</th>
+                <th class='px-4 py-2 text-left font-semibold'>Apellidos</th>
+                <th class='px-4 py-2 text-left font-semibold'>Email</th>
+                <th class='px-4 py-2 text-left font-semibold'>Fecha</th>
+                <th class='px-4 py-2 text-left font-semibold'>Seleccionar</th>
+                <th class='px-4 py-2 text-left font-semibold'>CV</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for candidato in candidatos %}
+            <tr>
+                <td class="px-4 py-2">{{ candidato.puesto }}</td>
+                <td class="px-4 py-2">{{ candidato.nombre }}</td>
+                <td class="px-4 py-2">{{ candidato.apellidos }}</td>
+                <td class="px-4 py-2">{{ candidato.email }}</td>
+                <td class="px-4 py-2">{{ candidato.fecha_postulacion|date:"Y-m-d H:i" }}</td>
+                <td class="flex gap-2">
+                {% if candidato.seleccionado %}
+                    <form action="{% url 'rrhh:seleccionar_candidato' candidato.pk %}" method="post" onsubmit="return confirm('¿Reenviar ficha a este candidato?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="reenviar" value="1">
+                        <button type="submit" class="bg-green-400 hover:bg-green-700 text-white px-3 py-1 rounded">Ya seleccionado</button>
+                    </form>
+
+                {% else %}
+                    <form action="{% url 'rrhh:seleccionar_candidato' candidato.pk %}" method="post" onsubmit="return confirm('¿Estás seguro de seleccionar a este candidato?');">
+                    {% csrf_token %}
+                        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded">
+                          Seleccionar
+                        </button>
+                    </form>
+                {% endif %}
+                  <form method="POST" action="{% url 'rrhh:descartar_candidato' candidato.id %}" data-confirm>
+                    {% csrf_token %}
+                    <button type="submit" class="bg-red-600 text-white px-2 py-1 rounded hover:bg-red-700">
+                      Descartar
+                    </button>
+                  </form>
+                {% if candidato.ficha_firmada %}
+                    <a href="{{ candidato.ficha_firmada.url }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-3 py-1 rounded">
+                        Ver ficha firmada
+                    </a>
+                {% else %}
+                    <span class="text-gray-500 italic">Sin ficha subida</span>
+                {% endif %}
+
+                </td>
+                <td class="px-4 py-2">
+                  {% if candidato.cv %}
+                    <a href="{{ candidato.cv.url }}" target="_blank" class="bg-blue-500 hover:bg-blue-700 text-white px-3 py-1 rounded">Ver CV</a>
+                  {% else %}
+                    <span class="text-gray-500 italic">Sin CV</span>
+                  {% endif %}
+                </td>
+
+            </tr>
+            {% endfor %}
+        </tbody>
+</table>
+</div>
+<!-- Modal de Confirmación -->
+<div id="confirm-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center hidden z-50">
+  <div class="bg-white rounded-lg p-6 max-w-sm w-full">
+    <h2 class="text-xl font-bold mb-4">¿Estás seguro?</h2>
+    <p class="mb-6 text-gray-600">Esta acción no se puede deshacer.</p>
+    <div class="flex justify-end gap-2">
+      <button id="cancel-modal" class="px-4 py-2 bg-gray-300 rounded">Cancelar</button>
+      <button id="confirm-modal-btn" class="px-4 py-2 bg-red-600 text-white rounded">Confirmar</button>
+    </div>
+  </div>
+</div>
+<script>
+  const modal = document.getElementById("confirm-modal");
+  const confirmBtn = document.getElementById("confirm-modal-btn");
+  const cancelBtn = document.getElementById("cancel-modal");
+  let formToSubmit = null;
+
+  document.querySelectorAll("form[data-confirm]").forEach(form => {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      formToSubmit = this;
+      modal.classList.remove("hidden");
+    });
+  });
+
+  confirmBtn.onclick = () => {
+    if (formToSubmit) formToSubmit.submit();
+  };
+
+  cancelBtn.onclick = () => {
+    modal.classList.add("hidden");
+    formToSubmit = null;
+  };
+</script>
+
+
+{% endblock %}
+

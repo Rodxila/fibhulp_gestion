@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}RRHH - FIBHULP{% endblock %}
+
+{% block content %}
+<div class="max-w-xl mx-auto text-center mt-16">
+  <h1 class="text-3xl font-bold text-purple-800 mb-8">Recursos Humanos</h1>
+
+  <div class="space-y-4">
+    <a href="{% url 'rrhh:seleccion_view' %}" class="block bg-blue-600 hover:bg-blue-700 text-white py-3 rounded shadow">
+      Selección
+    </a>
+
+    <a href="{% url 'rrhh:lista_candidatos' %}" class="block bg-indigo-600 hover:bg-indigo-700 text-white py-3 rounded shadow">
+    Ver Candidatos
+    </a>
+
+
+    <a href="{% url 'rrhh:rrhh_contratacion' %}" class="block bg-green-600 hover:bg-green-700 text-white py-3 rounded shadow">
+      Contratación
+    </a>
+    <a href="{% url 'rrhh:rrhh_nominas' %}" class="block bg-purple-600 hover:bg-purple-700 text-white py-3 rounded shadow">
+      Nóminas
+    </a>
+  </div>
+</div>
+{% endblock %}

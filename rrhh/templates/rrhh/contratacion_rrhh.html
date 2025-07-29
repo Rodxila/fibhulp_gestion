@@ -1,0 +1,103 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Contrataciones - RRHH{% endblock %}
+
+{% block content %}
+<div class="max-w-6xl mx-auto mt-6">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6">Solicitudes de contratación</h2>
+    <div class="text-center mt-4">
+      <a href="{% url 'rrhh:rrhh_inicio' %}" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded">
+        ← Volver al menú
+      </a>
+    </div>
+
+    <div class="overflow-x-auto mt-4">
+        <table class="w-full text-left border border-gray-300 text-sm bg-white shadow rounded">
+            <thead class="bg-gray-100">
+                <tr class="text-gray-700">
+                    <th class="px-4 py-2 border">Empleado</th>
+                    <th class="px-4 py-2 border">Correo</th>
+                    <th class="px-4 py-2 border">Empleado completado</th>
+                    <th class="px-4 py-2 border">Empresa completado</th>
+                    <th class="px-4 py-2 border">Enviado</th>
+                    <th class="px-4 py-2 border">Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for contrato in contrataciones %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-2 border">{{ contrato.nombre }}</td>
+                    <td class="px-4 py-2 border">{{ contrato.email }}</td>
+                    <td class="px-4 py-2 border">
+                        {% if contrato.rellenado_por_empleado %}
+                            <span class="text-green-600 font-semibold">✔ Sí</span>
+                        {% else %}
+                            <span class="text-red-500 font-semibold">✖ No</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border">
+                        {% if contrato.rellenado_por_empresa %}
+                            <span class="text-green-600 font-semibold">✔ Sí</span>
+                        {% else %}
+                            <span class="text-red-500 font-semibold">✖ No</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border">
+                        {% if contrato.enviado_a_fundanet and contrato.enviado_a_gestoria %}
+                            <span class="text-green-600 font-semibold">✔ Enviado</span>
+                        {% else %}
+                            <span class="text-yellow-600 font-semibold">⏳ Pendiente</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-4 py-2 border space-y-1">
+                        <a href="{% url 'rrhh:formulario_empresa' contrato.pk %}" class="text-blue-600 hover:underline block">Ver</a>
+                        <a href="{% url 'rrhh:editar_datos_rrhh' contrato.pk %}" class="btn btn-primary">Rellenar datos RRHH</a>
+                        <button onclick="openDeleteModal({{ contrato.pk }}, '{{ contrato.nombre }}')" class="text-red-600 hover:underline block">
+                            Eliminar
+                        </button>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-4 py-4 text-center text-gray-500">
+                        No hay contrataciones registradas.
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+<!-- Modal -->
+<div id="deleteModal" class="hidden fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded p-6 shadow-lg max-w-md w-full">
+    <h2 class="text-xl font-semibold mb-4">¿Eliminar formulario?</h2>
+    <p class="mb-4">Estás a punto de eliminar el formulario de <span id="modalEmpleadoNombre" class="font-semibold"></span>. Esto no se puede deshacer.</p>
+
+    <form method="post" id="deleteForm">
+      {% csrf_token %}
+      <div class="flex justify-end space-x-4">
+        <button type="button" onclick="closeDeleteModal()" class="bg-gray-200 hover:bg-gray-300 px-4 py-2 rounded">
+          Cancelar
+        </button>
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded">
+          Eliminar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  function openDeleteModal(pk, nombre) {
+    document.getElementById('deleteModal').classList.remove('hidden');
+    document.getElementById('modalEmpleadoNombre').textContent = nombre;
+    document.getElementById('deleteForm').action = `/rrhh/eliminar-formulario/${pk}/`;  // Asegúrate que la URL concuerda
+  }
+  function closeDeleteModal() {
+    document.getElementById('deleteModal').classList.add('hidden');
+  }
+</script>
+
+{% endblock %}
