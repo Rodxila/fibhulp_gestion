@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+{% block title %}Contratos - Ensayos Clínicos{% endblock %}
+{% block content %}
+{% if messages %}
+
+  <div class="max-w-md mx-auto mb-4">
+    {% for message in messages %}
+      <div class="p-3 rounded shadow text-white
+                  {% if message.tags == 'success' %}bg-green-600
+                  {% elif message.tags == 'warning' %}bg-yellow-500
+                  {% elif message.tags == 'error' %}bg-red-600
+                  {% else %}bg-gray-600{% endif %}">
+        {{ message }}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<h1 class="text-3xl mb-5 text-center">Ensayos Clínicos</h1>
+
+<div class="flex justify-center mb-6 space-x-2">
+  <a href="/ensayos-clinicos/contratos/"
+     class="px-4 py-2 rounded-t bg-purple-600 text-white font-semibold shadow">Contratos</a>
+  <a href="/ensayos-clinicos/facturas/"
+     class="px-4 py-2 rounded-t bg-purple-100 text-purple-700 hover:bg-purple-200">Facturas</a>
+</div>
+
+<form method="post" class="bg-white p-6 rounded shadow-md max-w-md mx-auto mb-6">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-2 gap-2 mt-4">
+      <button type="submit" class="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700">Añadir</button>
+      <button type="button" onclick="openModal()" class="w-full bg-red-600 text-white py-2 rounded hover:bg-red-700">Borrar mes</button>
+      <a href="{% url 'exportar_contratos_excel' %}" class="w-full bg-green-600 text-white py-2 rounded text-center hover:bg-green-700">Exportar a Excel</a>
+      <button type="button" onclick="openCompareModal()" class="w-full bg-purple-600 text-white py-2 rounded hover:bg-purple-700">Comparar años</button>
+    </div>
+</form>
+
+<!-- 🔢 Totales -->
+<div class="max-w-4xl mx-auto bg-white shadow p-4 rounded mb-6">
+  <h2 class="text-xl font-semibold mb-2 text-purple-700">Totales</h2>
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-center">
+    <div>
+      <p class="text-gray-500 text-sm">Ensayos</p>
+      <p class="text-2xl font-bold text-purple-700">{{ total_ensayos|formato_europeo }}</p>
+    </div>
+    <div>
+      <p class="text-gray-500 text-sm">Observacionales</p>
+      <p class="text-2xl font-bold text-purple-700">{{ total_obs|formato_europeo }}</p>
+    </div>
+    <div>
+      <p class="text-gray-500 text-sm">Adendas</p>
+      <p class="text-2xl font-bold text-purple-700">{{ total_adendas|formato_europeo }}</p>
+    </div>
+  </div>
+</div>
+
+<!-- 📊 Gráfico -->
+<div class="bg-white p-6 rounded shadow-md max-w-4xl mx-auto">
+  <canvas id="contractChart"></canvas>
+</div>
+
+<!-- Comparación de años -->
+{% if comparacion %}
+  <div class="my-12 bg-white p-6 rounded shadow max-w-4xl mx-auto">
+    <h2 class="text-xl font-bold text-center text-blue-800 mb-4">
+      Comparativa {{ comparacion.año_1 }} vs {{ comparacion.año_2 }}
+    </h2>
+    <canvas id="comparativaContratosChart"></canvas>
+  </div>
+
+  <script>
+    const comparacion = {{ comparacion|safe }};
+    new Chart(document.getElementById("comparativaContratosChart"), {
+      type: 'bar',
+      data: {
+        labels: comparacion.labels,
+        datasets: [
+          {
+            label: `Ensayos ${comparacion.año_1}`,
+            data: comparacion.ensayos_1,
+            backgroundColor: 'rgba(54, 162, 235, 0.6)',
+          },
+          {
+            label: `Ensayos ${comparacion.año_2}`,
+            data: comparacion.ensayos_2,
+            backgroundColor: 'rgba(255, 99, 132, 0.6)',
+          },
+          {
+            label: `Obs. ${comparacion.año_1}`,
+            data: comparacion.obs_1,
+            backgroundColor: 'rgba(75, 192, 192, 0.6)',
+          },
+          {
+            label: `Obs. ${comparacion.año_2}`,
+            data: comparacion.obs_2,
+            backgroundColor: 'rgba(255, 206, 86, 0.6)',
+          },
+          {
+            label: `Adendas ${comparacion.año_1}`,
+            data: comparacion.adendas_1,
+            backgroundColor: 'rgba(153, 102, 255, 0.6)',
+          },
+          {
+            label: `Adendas ${comparacion.año_2}`,
+            data: comparacion.adendas_2,
+            backgroundColor: 'rgba(255, 159, 64, 0.6)',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'top' }
+        },
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: function(value) {
+                return value.toLocaleString('de-DE', { minimumFractionDigits: 0 });
+              }
+            }
+          }
+        }
+      }
+    });
+
+  </script>
+{% endif %}
+
+{% for año in años_disponibles %}
+  <div class="mt-10 bg-white p-4 rounded shadow max-w-4xl mx-auto">
+    <h3 class="text-xl font-bold text-purple-800 text-center mb-4">Resumen - Año {{ año }}</h3>
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm text-center">
+      {% for mes in meses %}
+        {% with fila=datos|get_item:mes|get_item:año %}
+        <div class="p-2 border rounded bg-gray-50">
+          <p class="font-semibold text-gray-600">{{ mes }}</p>
+          <p class="text-xs text-gray-500">Ensayos: {{ fila.ensayos|default:0 }}</p>
+          <p class="text-xs text-gray-500">Obs.: {{ fila.observacionales|default:0 }}</p>
+          <p class="text-xs text-gray-500">Adendas: {{ fila.adendas|default:0 }}</p>
+        </div>
+        {% endwith %}
+      {% endfor %}
+    </div>
+
+    <div class="mt-6 text-center text-lg text-grey-600">
+      Ensayos: {{ totales|get_item:año|get_item:'ensayos' }},
+      Observacionales: {{ totales|get_item:año|get_item:'observacionales' }},
+      Adendas: {{ totales|get_item:año|get_item:'adendas' }}
+    </div>
+  </div>
+{% endfor %}
+
+
+<!-- Modal de eliminación -->
+<div id="confirmModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg">
+    <h2 class="text-xl font-semibold mb-4 text-red-600">Confirmar eliminación</h2>
+    <p class="mb-4">¿Estás seguro de que deseas borrar los datos del mes de
+      <span id="modalMonthName" class="font-semibold text-red-700"></span>? Esta acción no se puede deshacer.</p>
+    <div class="flex justify-end gap-2">
+      <button onclick="closeModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancelar</button>
+      <button onclick="confirmDelete()" class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">Borrar</button>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de comparación -->
+<div id="compareModal" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 hidden z-50">
+  <div class="bg-white rounded-lg p-6 w-full max-w-sm shadow-lg">
+    <h2 class="text-xl font-semibold mb-4 text-purple-800">Comparar años</h2>
+    <form method="get" action="{% url 'contratos' %}">
+      <label class="block mb-2 font-semibold">Primer año</label>
+        <select name="comparar_ano_1" class="w-full border p-2 rounded mb-4" required>
+          {% for año in años_disponibles %}
+            <option value="{{ año }}">{{ año }}</option>
+          {% endfor %}
+        </select>
+
+        <label class="block mb-2 font-semibold">Segundo año</label>
+        <select name="comparar_ano_2" class="w-full border p-2 rounded mb-4" required>
+          {% for año in años_disponibles %}
+            <option value="{{ año }}">{{ año }}</option>
+          {% endfor %}
+        </select>
+
+      <div class="flex justify-end gap-2">
+        <button type="button" onclick="closeCompareModal()" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">Cancelar</button>
+        <button type="submit" class="px-4 py-2 bg-purple-600 text-white rounded hover:bg-purple-700">Comparar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+  const chartData = {{ chart_data|safe }};
+  const ctx = document.getElementById('contractChart').getContext('2d');
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: chartData.labels,
+      datasets: [
+        { label: 'Ensayos', data: chartData.ensayos, backgroundColor: 'rgba(54, 162, 235, 0.7)' },
+        { label: 'Observacionales', data: chartData.observacionales, backgroundColor: 'rgba(75, 192, 192, 0.7)' },
+        { label: 'Adendas', data: chartData.adendas, backgroundColor: 'rgba(153, 102, 255, 0.7)' }
+      ]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        y: {
+          beginAtZero: true,
+          ticks: {
+            callback: function(value) {
+              return value.toLocaleString('de-DE', { minimumFractionDigits: 0 });
+            }
+          }
+        }
+      }
+    }
+  });
+
+  function openModal() {
+    const mesSelect = document.querySelector('select[name="mes"]');
+    const selectedMonth = mesSelect ? mesSelect.value : "";
+    document.getElementById('modalMonthName').innerText = selectedMonth;
+    document.getElementById('confirmModal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('confirmModal').classList.add('hidden');
+  }
+
+  function confirmDelete() {
+    const form = document.querySelector('form');
+    const input = document.createElement('input');
+    input.type = 'hidden';
+    input.name = 'delete-month';
+    input.value = '1';
+    form.appendChild(input);
+    form.submit();
+  }
+
+  function openCompareModal() {
+    document.getElementById('compareModal').classList.remove('hidden');
+  }
+
+  function closeCompareModal() {
+    document.getElementById('compareModal').classList.add('hidden');
+  }
+</script>
+
+{% endblock %}
