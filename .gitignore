@@ -1,0 +1,46 @@
+# Entorno virtual
+venv/
+
+# Archivos Python compilados
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Archivos temporales de logs, bases de datos y otros
+*.log
+*.pot
+*.pyc
+*.sqlite3
+
+# Archivos de configuración y entorno
+.env
+.env.*
+
+# Archivos de subida
+media/*
+!media/.gitkeep
+
+staticfiles/*
+!staticfiles/.gitkeep
+
+cvs/*
+!cvs/.gitkeep
+
+documentos/*
+!documentos/.gitkeep
+
+
+
+# Archivos de backup o sistema
+*.bak
+*.swp
+*.tmp
+.DS_Store
+Thumbs.db
+
+# Archivos generados
+*.pdf
+*.zip
+
+# VS Code settings (opcional)
+.vscode/
