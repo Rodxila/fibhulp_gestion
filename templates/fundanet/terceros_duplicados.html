@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Duplicados - Terceros{% endblock %}
+{% block content %}
+<h1 class="text-2xl font-bold text-purple-700 text-center mb-6">Terceros Potencialmente Duplicados</h1>
+
+{% if duplicados %}
+  <table class="w-full bg-white shadow rounded table-auto text-sm">
+    <thead>
+      <tr class="bg-purple-600 text-white">
+        <th class="p-2">Tercero A</th>
+        <th class="p-2">Tercero B</th>
+        <th class="p-2">Similitud</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for a, b, score in duplicados %}
+        <tr class="border-t">
+          <td class="p-2">{{ a.nombre }}</td>
+          <td class="p-2">{{ b.nombre }}</td>
+          <td class="p-2 text-center">{{ score }}</td>
+        </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+{% else %}
+  <p class="text-center text-gray-600">No se encontraron duplicados.</p>
+{% endif %}
+{% endblock %}

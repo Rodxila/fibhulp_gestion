@@ -1,0 +1,302 @@
+{% extends 'base.html' %}
+{% load widget_tweaks %}
+{% load formatos %}
+
+{% block content %}
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <h1 class="text-2xl font-bold text-center text-purple-800 mb-6">Convocatorias</h1>
+    <div class="flex justify-center mb-6 space-x-2">
+      <a href="{% url 'legal_convocatorias' %}"
+         class="px-4 py-2 rounded-t {% if request.path == '/legal/convocatorias/' %}bg-purple-600 text-white font-semibold shadow{% else %}bg-purple-100 text-purple-700 hover:bg-purple-200{% endif %}">
+         Convocatorias
+      </a>
+      <a href="{% url 'legal_concursos' %}"
+         class="px-4 py-2 rounded-t {% if request.path == '/legal/concursos/' %}bg-purple-600 text-white font-semibold shadow{% else %}bg-purple-100 text-purple-700 hover:bg-purple-200{% endif %}">
+         Concursos
+      </a>
+    </div>
+
+  <form method="post" enctype="multipart/form-data" class="mb-6 p-4 bg-white rounded shadow max-w-3xl mx-auto">
+    <label class="block font-semibold">Subir Excel</label>
+    <input type="file" name="excel_file" accept=".xlsx" class="border p-2 rounded w-full mb-4">
+    {% csrf_token %}
+    <button type="submit" class="bg-orange-600 text-white py-2 px-4 rounded hover:bg-orange-700">Importar Excel</button>
+  </form>
+
+    <form method="POST" enctype="multipart/form-data" class="max-w-6xl mx-auto bg-white p-6 rounded-md shadow-md space-y-6">
+      {% csrf_token %}
+      <div class="grid grid-cols-2 gap-6">
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Tipo</label>
+          {{ form.tipo|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">IP</label>
+          {{ form.ip|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Nombre</label>
+          {{ form.nombre|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Código Fundanet</label>
+          {{ form.codigo_fundanet|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Cantidad</label>
+          {{ form.cantidad|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Overhead</label>
+          {{ form.overhead|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Ruta</label>
+          {{ form.ruta|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Factura</label>
+          {{ form.factura|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Estado contabilidad</label>
+          {{ form.estado_contabilidad|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Contactos fra</label>
+          {{ form.contactos_fra|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">Notas</label>
+        {{ form.notas|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm h-[38px]" }}
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700">NIF Tercero</label>
+          {{ form.nif_tercero|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">Objeto</label>
+          {{ form.objeto|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700">País/CCAA</label>
+          {{ form.pais_ccaa|add_class:"w-full p-2 border border-gray-300 rounded-md bg-gray-50 text-sm" }}
+        </div>
+
+
+      <div class="text-right">
+        <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 text-sm">
+          Añadir manualmente
+        </button>
+      </div>
+    </form>
+
+
+
+  <div class="max-w-screen-xl mx-auto mt-8 overflow-x-auto shadow-lg rounded">
+      <table class="w-full border border-gray-300 text-sm text-left">
+        <thead class="bg-purple-500 text-white">
+          <tr>
+            <th class="border p-2">Tipo</th>
+            <th class="border p-2">NIF Tercero</th>
+            <th class="border p-2">IP</th>
+            <th class="border p-2">Nombre</th>
+            <th class="border p-2">Objeto</th>
+            <th class="border p-2">País/CCAA</th>
+            <th class="border p-2">Código Fundanet</th>
+            <th class="border p-2">Cantidad</th>
+            <th class="border p-2">Overhead</th>
+            <th class="border p-2">Ruta</th>
+            <th class="border p-2">Factura</th>
+            <th class="border p-2">Notas</th>
+            <th class="border p-2">Estado Contabilidad</th>
+            <th class="border p-2">Contactos FRA</th>
+
+            <th class="border p-2"></th>
+          </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+          {% for d in datos %}
+          {% with d.estado_contabilidad|upper as estado_ctb %}
+            <tr class="border-t
+              {% if "NO EMITIR FRA" in estado_ctb %}bg-rose-400
+              {% elif "PMP" in estado_ctb or "OVERHEAD" in estado_ctb %}bg-violet-300
+              {% elif "FINALIZADO" in estado_ctb %}bg-emerald-200
+              {% elif "PENDIENTE" in estado_ctb %}bg-cyan-200
+              {% else %}bg-white
+              {% endif %}
+            ">
+            {% endwith %}
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.tipo }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.nif_tercero }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.ip }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.nombre }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.objeto }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.pais_ccaa }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.codigo_fundanet }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.cantidad|formato_europeo }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.overhead|formato_europeo }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.ruta }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.factura }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.notas }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.estado_contabilidad }}</td>
+            <td class="p-2 align-top break-words whitespace-pre-wrap text-sm">{{ d.contactos_fra }}</td>
+
+            <td class="p-2 align-top">
+              <div class="flex flex-col items-end gap-2">
+                <a href="{% url 'editar_convocatoria' d.id %}" class="block w-full text-right bg-purple-600 text-white px-3 py-1 rounded hover:bg-purple-700 text-sm">Editar</a>
+                <a href="{% url 'borrar_convocatoria' d.id %}" onclick="return confirm('¿Seguro que quieres eliminar esta convocatoria?');"
+                   class="block w-full text-right bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700 text-sm">Borrar</a>
+              </div>
+            </td>
+
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+
+    {% if resumen_por_tipo %}
+    <div class="max-w-5xl mx-auto my-6 p-4 bg-gray-50 border border-gray-300 rounded">
+      <h2 class="text-lg font-semibold text-purple-700 mb-4 text-center">Resumen por Tipo</h2>
+      <table class="w-full text-sm text-left">
+        <thead class="bg-purple-100">
+          <tr>
+            <th class="p-2 border">Tipo</th>
+            <th class="p-2 border text-right">Nº Convocatorias</th>
+            <th class="p-2 border text-right">Importe Total</th>
+            <th class="p-2 border text-right">Overhead Total</th>
+            <th class="p-2 border text-right">Importe Combinado</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          {% for tipo, datos in resumen_por_tipo.items %}
+          <tr class="border-t">
+            <td class="p-2">{{ tipo }}</td>
+            <td class="p-2 text-right">{{ datos.cantidad }}</td>
+            <td class="p-2 text-right">{{ datos.total_cantidad|floatformat:2|formato_europeo }} €</td>
+            <td class="p-2 text-right">{{ datos.total_overhead|floatformat:2|formato_europeo }} €</td>
+            <td class="p-2 text-right font-semibold text-blue-700">{{ datos.total_combinado|floatformat:2|formato_europeo }} €</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    {% if resumen_por_ip %}
+    <div class="max-w-5xl mx-auto my-6 p-4 bg-gray-50 border border-gray-300 rounded">
+      <h2 class="text-lg font-semibold text-purple-700 mb-4 text-center">Resumen por IP</h2>
+      <table class="w-full text-sm text-left">
+        <thead class="bg-purple-100">
+          <tr>
+            <th class="p-2 border">IP</th>
+            <th class="p-2 border text-right">Nº Convocatorias</th>
+            <th class="p-2 border text-right">Importe Total</th>
+            <th class="p-2 border text-right">Overhead Total</th>
+            <th class="p-2 border text-right">Importe Combinado</th>
+          </tr>
+        </thead>
+        <tbody class="bg-white">
+          {% for ip, datos in resumen_por_ip.items %}
+          <tr class="border-t">
+            <td class="p-2">{{ ip }}</td>
+            <td class="p-2 text-right">{{ datos.cantidad }}</td>
+            <td class="p-2 text-right">{{ datos.total_cantidad|floatformat:2|formato_europeo }} €</td>
+            <td class="p-2 text-right">{{ datos.total_overhead|floatformat:2|formato_europeo }} €</td>
+            <td class="p-2 text-right font-semibold text-blue-700">{{ datos.total_combinado|floatformat:2|formato_europeo }} €</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% endif %}
+
+    <div class="max-w-4xl mx-auto mt-10">
+      <h2 class="text-lg font-semibold text-purple-700 mb-6 text-center">Gráfico por Tipo (Importe combinado)</h2>
+      <canvas id="graficoTipo"></canvas>
+    </div>
+
+    <h2 class="text-lg font-semibold text-purple-700 mb-6 text-center mt-10">Importe combinado por IP</h2>
+
+
+    <div class="max-w-6xl mx-auto mt-10 overflow-x-auto">
+      <canvas id="graficoIP" style="min-width: 800px;"></canvas>
+    </div>
+    <div class="relative w-full" style="height: 60vh; min-width: 600px;">
+      <canvas id="graficoIP" class="w-full h-full"></canvas>
+    </div>
+
+
+  </div>
+  <script>
+      const tipoLabels = {{ grafico_tipo_labels|safe }};
+      const tipoDatos = {{ grafico_tipo_valores|safe }};
+      const ipLabels = {{ grafico_ip_labels|safe }};
+      const ipDatos = {{ grafico_ip_valores|safe }};
+
+      const ctxTipo = document.getElementById('graficoTipo');
+      new Chart(ctxTipo, {
+        type: 'bar',
+        data: {
+          labels: tipoLabels,
+          datasets: [{
+            label: 'Importe combinado (€)',
+            data: tipoDatos,
+            backgroundColor: 'rgba(59, 130, 246, 0.6)',
+            borderColor: 'rgba(59, 130, 246, 1)',
+            borderWidth: 1
+          }]
+        },
+        options: {
+          indexAxis: 'y',
+          scales: {
+            x: {
+              beginAtZero: true
+            }
+          }
+        }
+      });
+
+      const ctxIP = document.getElementById('graficoIP');
+      new Chart(ctxIP, {
+          type: 'bar',
+          data: {
+            labels: ipLabels,
+            datasets: [{
+              label: 'Importe combinado (€)',
+              data: ipDatos,
+              backgroundColor: 'rgba(16, 185, 129, 0.7)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 1
+            }]
+          },
+          options: {
+            indexAxis: 'x',
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+              y: {
+                beginAtZero: true,
+                title: {
+                  display: true,
+                  text: '€'
+                }
+              },
+              x: {
+                ticks: {
+                  autoSkip: false,
+                  maxRotation: 45,
+                  minRotation: 45
+                }
+              }
+            }
+          }
+        });
+
+    </script>
+
+
+{% endblock %}

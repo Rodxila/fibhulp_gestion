@@ -1,0 +1,28 @@
+<!-- fundanet/templates/fundanet/index.html -->
+{% extends 'base.html' %}
+{% block title %}Fundanet{% endblock %}
+{% block content %}
+  <h1 class="text-3xl font-bold text-purple-700 text-center mb-6 mt-6">Integración con Fundanet</h1>
+  <div class="text-center space-y-4">
+    <p class="text-lg my-10">Selecciona una opción:</p>
+    <div class="text-center my-10 mt-6">
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4 max-w-6xl mx-auto px-4">
+        <a href="{% url 'fundanet_terceros' %}" class="flex items-center justify-center aspect-square bg-blue-600 hover:bg-blue-700 text-white text-lg font-semibold rounded shadow">
+          Terceros
+        </a>
+        <a href="{% url 'fundanet_proyectos' %}" class="flex items-center justify-center aspect-square bg-green-600 hover:bg-green-700 text-white text-lg font-semibold rounded shadow">
+          Proyectos
+        </a>
+        <a href="{% url 'fundanet_investigadores' %}" class="flex items-center justify-center aspect-square bg-pink-600 hover:bg-pink-700 text-white text-lg font-semibold rounded shadow">
+          Investigadores
+        </a>
+        <a href="{% url 'fundanet_grupos' %}" class="flex items-center justify-center aspect-square bg-yellow-500 hover:bg-yellow-600 text-white text-lg font-semibold rounded shadow">
+          Grupos
+        </a>
+        <a href="{% url 'fundanet_nodos' %}" class="flex items-center justify-center aspect-square bg-indigo-600 hover:bg-indigo-700 text-white text-lg font-semibold rounded shadow">
+          Centro / Nodo
+        </a>
+      </div>
+    </div>
+  </div>
+{% endblock %}

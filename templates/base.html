@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>{% block title %}FIBHULP{% endblock %}</title>
+    {% load static %}
+    <link rel="icon" type="image/x-icon" href="{% static 'img/iis_logo.jpg' %}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100">
+
+<header class="bg-purple-600 text-white py-4 shadow-md mb-6">
+    <div class="container mx-auto flex justify-between items-center px-4">
+        <h1 class="text-xl font-bold">FIBHULP</h1>
+        <nav class="space-x-4 text-sm">
+            <a href="/" class="hover:underline">Bienvenida</a>
+            <a href="/ensayos-clinicos/contratos/" class="hover:underline">Ensayos Clínicos</a>
+            <a href="/legal/convocatorias/" class="hover:underline">Legal</a>
+            <a href="#" class="hover:underline">Contabilidad</a>
+            <a href="/rrhh" class="hover:underline">RRHH</a>
+            <a href="#" class="hover:underline">Instituto</a>
+            <a href="#" class="hover:underline">Proyectos Públicos</a>
+            <a href="#" class="hover:underline">Proyectos Europeos</a>
+            <a href="#" class="hover:underline">Innovación</a>
+            <a href="{% url 'fundanet_index' %}" class="hover:text-white">Fundanet</a>
+            <a href="/buscar_excel/" class="hover:underline">Cursos</a>
+            <a href="{% url 'logout' %}" class="text-sm text-red-600 hover:underline float-right">Cerrar sesión</a>
+        </nav>
+    </div>
+</header>
+
+<main class="container mx-auto px-4">
+    {% block content %}{% endblock %}
+</main>
+
+</body>
+</html>
